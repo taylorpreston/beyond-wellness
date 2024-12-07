@@ -1,0 +1,11 @@
+node_modules
+build
+dist
+.cache
+public/build
+coverage
+.env
+.DS_Store
+.vscode
+*.log
+storefrontapi.generated.d.ts
