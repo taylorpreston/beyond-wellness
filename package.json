@@ -13,7 +13,8 @@
     "codegen": "shopify hydrogen codegen",
     "list": "shopify hydrogen list",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "deploy": "shopify hydrogen deploy"
   },
   "prettier": "@shopify/prettier-config",
   "dependencies": {
