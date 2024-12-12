@@ -1,10 +1,17 @@
 import {defer, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {Await, useLoaderData, Link, type MetaFunction} from '@remix-run/react';
+import {
+  Await,
+  useLoaderData,
+  Link,
+  type MetaFunction,
+  useLocation,
+} from '@remix-run/react';
 import {Suspense} from 'react';
 import {Image, Money} from '@shopify/hydrogen';
 import type {
   FeaturedCollectionFragment,
   RecommendedProductsQuery,
+  RecommendedProductFragment,
 } from 'storefrontapi.generated';
 import logoImage from '~/assets/logo-color.png';
 
@@ -60,7 +67,7 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
-  const heroHeightClasses = 'h-auto md:h-[500px]';
+  const heroHeightClasses = 'h-[350px] md:h-[725px]';
   return (
     <div className="overflow-hidden">
       <div className={`${heroHeightClasses} flex flex-col`}>
@@ -74,7 +81,7 @@ export default function Homepage() {
               <img
                 src={logoImage}
                 alt="Beyond Wellness"
-                className="w-auto h-full p-8 border-r md:border-r md:border-r-base-100"
+                className="w-auto h-full p-8 m-auto"
               />
             </div>
           </div>
@@ -89,8 +96,18 @@ export default function Homepage() {
 
 function ContactForm() {
   return (
-    <div className="bg-base-100 border-t border-primary-content">
-      <h2 className="text-lg font-montserrat font-bold p-2">Contact Us</h2>
+    <div className="bg-base-100">
+      <div className="flex flex-col">
+        <h2 className="text-lg font-montserrat font-bold p-2">
+          From the garden
+        </h2>
+        <p className="text-sm font-montserrat font-light p-2">
+          Here is some information about what we do and why we are doing it.
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
+          quos. Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          Quisquam, quos.
+        </p>
+      </div>
     </div>
   );
 }
@@ -149,58 +166,83 @@ function FeaturedCollection({
   );
 }
 
+function ProductCard({
+  product,
+  index,
+  className,
+}: {
+  product: RecommendedProductFragment;
+  index: number;
+  className?: string;
+}) {
+  return (
+    <Link
+      key={product.id}
+      className={`flex flex-col bg-base-100 border-primary-content border-t ${className}`}
+      to={`/products/${product.handle}`}
+    >
+      <div className="flex flex-col items-start justify-center p-2">
+        <h4 className="text-sm font-montserrat font-light">{product.title}</h4>
+      </div>
+      <Image
+        data={product.images.nodes[0]}
+        aspectRatio="1/1"
+        sizes="(min-width: 45em) 20vw, 50vw"
+        className="w-full h-full object-cover !rounded-none"
+      />
+      <div className="flex flex-row items-center justify-between p-2">
+        <small>
+          <Money
+            className="text-sm font-montserrat font-light"
+            data={product.priceRange.minVariantPrice}
+          />
+        </small>
+        <button className="link font-montserrat font-bold text-xs">
+          Add to Cart
+        </button>
+      </div>
+    </Link>
+  );
+}
+
+function ProductGrid({products}: {products: RecommendedProductFragment[]}) {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-primary-content text-primary-content bg-[#f7f8f8] border-b">
+      {products.map((product, index) => {
+        const count = index + 1;
+        // Apply border-r to all items except last in row (every 2nd on mobile, every 4th on desktop)
+        const isMobileEnd = count % 2 === 0;
+        const isDesktopEnd = count % 4 === 0;
+        const productBorderClass = `border-r ${isMobileEnd ? 'border-r-0 md:border-r' : ''} ${isDesktopEnd ? 'md:border-r-0' : ''}`;
+
+        return (
+          <ProductCard
+            key={product.id}
+            product={product}
+            index={index}
+            className={productBorderClass}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
 function RecommendedProducts({
   products,
 }: {
   products: Promise<RecommendedProductsQuery | null>;
 }) {
   return (
-    <div className="recommended-products bg-base-100 border-t border-primary-content">
+    <div className="bg-base-100 border-t border-primary-content">
       <h2 className="text-lg font-montserrat font-bold p-2">Our Products</h2>
       <Suspense fallback={<div>Loading...</div>}>
         <Await resolve={products}>
           {(response) => (
-            <div
-              className="grid grid-cols-2 gap-0 border-primary-content text-primary-content bg-[#f7f8f8] border-b"
-              id="recommended-products"
-            >
-              {response
-                ? response.products.nodes.map((product, index) => (
-                    <Link
-                      key={product.id}
-                      className={`flex flex-col bg-base-100 border-primary-content border-t ${index === 0 || index % 2 === 0 ? 'border-r' : ''}`}
-                      to={`/products/${product.handle}`}
-                    >
-                      <div className="flex flex-col items-start justify-center p-2">
-                        <h4 className="text-sm font-montserrat font-light">
-                          {product.title}
-                        </h4>
-                      </div>
-                      <Image
-                        data={product.images.nodes[0]}
-                        aspectRatio="1/1"
-                        sizes="(min-width: 45em) 20vw, 50vw"
-                        className="w-full h-full object-cover !rounded-none"
-                      />
-                      <div className="flex flex-row items-center justify-between p-2">
-                        <small>
-                          <Money
-                            className="text-sm font-montserrat font-light"
-                            data={product.priceRange.minVariantPrice}
-                          />
-                        </small>
-                        <button className="link font-montserrat font-bold text-xs">
-                          Add to Cart
-                        </button>
-                      </div>
-                    </Link>
-                  ))
-                : null}
-            </div>
+            <ProductGrid products={response?.products.nodes ?? []} />
           )}
         </Await>
       </Suspense>
-      <br />
     </div>
   );
 }

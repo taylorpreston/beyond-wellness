@@ -1,5 +1,11 @@
 import {Suspense} from 'react';
-import {Await, NavLink, useAsyncValue} from '@remix-run/react';
+import {
+  Await,
+  Link,
+  NavLink,
+  useAsyncValue,
+  useLocation,
+} from '@remix-run/react';
 import {
   type CartViewPayload,
   Image,
@@ -15,7 +21,7 @@ interface HeaderProps {
   cart: Promise<CartApiQueryFragment | null>;
   isLoggedIn: Promise<boolean>;
   publicStoreDomain: string;
-  isHomepage?: boolean;
+  isHomepage: boolean;
 }
 
 type Viewport = 'desktop' | 'mobile';
@@ -28,13 +34,17 @@ export function Header({
   isHomepage = false,
 }: HeaderProps) {
   const {shop, menu} = header;
+
+  console.log({
+    isHomepage,
+  });
+
   const color = isHomepage ? 'base-100' : 'primary-content';
-  const textColor = isHomepage ? 'ba' : 'primary-content';
   const outerGradientClasses = isHomepage ? 'from-accent/60 to-accent/60' : '';
   const innerGradientClasses = isHomepage ? 'from-black/60 to-black/60' : '';
   return (
     <header
-      className={`h-64px flex flex-col justify-between items-center text-base-100 border-${color} border-b bg-gradient-to-r ${outerGradientClasses}`}
+      className={`h-64px flex flex-col justify-between items-center text-${color} border-${color} border-b bg-gradient-to-r ${outerGradientClasses}`}
     >
       <div className={`h-full w-full bg-gradient-to-r ${innerGradientClasses}`}>
         <NavLink prefetch="intent" to="/" end>
@@ -79,7 +89,7 @@ export function HeaderMenu({
           Home
         </NavLink>
       )}
-      {(menu || FALLBACK_HEADER_MENU).items.map((item) => {
+      {/* {(menu || FALLBACK_HEADER_MENU).items.map((item) => {
         if (!item.url) return null;
 
         // if the url is internal, we strip the domain
@@ -102,7 +112,7 @@ export function HeaderMenu({
             {item.title}
           </NavLink>
         );
-      })}
+      })} */}
     </nav>
   );
 }
@@ -114,21 +124,24 @@ function HeaderCtas({
 }: Pick<HeaderProps, 'isLoggedIn' | 'cart'> & {
   shop: HeaderProps['header']['shop'];
 }) {
+  const isHomepage = useLocation().pathname === '/';
   return (
     <nav className="navbar flex justify-between items-center" role="navigation">
       <HeaderMenuMobileToggle />
-      <div className="flex flex-col items-center">
-        <h1
-          className="text-2xl font-montserrat font-bold font-white mb-0"
-          style={{lineHeight: '1.2', letterSpacing: '-1px'}}
-        >
-          Beyond Wellness
-        </h1>
-        <h1 className="text-xs font-montserrat font-light font-white mt-[-2px]">
-          Herbals Remedies
-        </h1>
-      </div>
-      {/* <img src={logoImage} width={150} height={150} /> */}
+      <Link to="/" className="!no-underline">
+        <div className="flex flex-col items-center">
+          <h1
+            className="text-2xl font-montserrat font-bold font-white mb-0 no-underline"
+            style={{lineHeight: '1.2', letterSpacing: '-1px'}}
+          >
+            Beyond Wellness
+          </h1>
+          <h1 className="text-xs font-montserrat font-light font-white mt-[-2px] no-underline">
+            Herbals Remedies
+          </h1>
+        </div>
+      </Link>
+      {/* <img src={logoImage} width={100} height={100} /> */}
       {/* <NavLink prefetch="intent" to="/account">
         <span className="text-xl font-montserrat font-thin font-white">
           <Suspense fallback="Sign in">

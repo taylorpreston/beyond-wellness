@@ -138,13 +138,7 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 export function Layout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>('root');
-
-  console.log({
-    LAYOUT_DATA: data,
-  });
-
   const isHomepage = useLocation().pathname === '/';
-  console.log({isHomepage});
   const backgroundStyle = isHomepage
     ? {
         backgroundImage: `url(${heroImage})`,
@@ -171,7 +165,7 @@ export function Layout({children}: {children?: React.ReactNode}) {
           rel="stylesheet"
         />
       </head>
-      <body style={backgroundStyle}>
+      <body style={backgroundStyle} className="bg-base-100">
         {data ? (
           <Analytics.Provider
             cart={data.cart}

@@ -1,4 +1,4 @@
-import {Suspense} from 'react';
+import {Suspense, useState} from 'react';
 import {defer, redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {Await, useLoaderData, type MetaFunction} from '@remix-run/react';
 import type {ProductFragment} from 'storefrontapi.generated';
@@ -12,6 +12,7 @@ import {getVariantUrl} from '~/lib/variants';
 import {ProductPrice} from '~/components/ProductPrice';
 import {ProductImage} from '~/components/ProductImage';
 import {ProductForm} from '~/components/ProductForm';
+import {Image} from '@shopify/hydrogen';
 
 export const meta: MetaFunction<typeof loader> = ({data}) => {
   return [{title: `Hydrogen | ${data?.product.title ?? ''}`}];
@@ -126,6 +127,83 @@ function redirectToFirstVariant({
   );
 }
 
+const ProductCarousel = ({product}: {product: ProductFragment}) => {
+  const [currentImage, setCurrentImage] = useState(0);
+  // return (
+  //   <div className="flex flex-col w-full h-full relative">
+  //     <div className="flex flex-row w-full h-full">
+  //       <Image
+  //         src={product.images.nodes[currentImage].url}
+  //         alt={product.images.nodes[currentImage].altText || 'Product Image'}
+  //         width={product.images.nodes[currentImage].width}
+  //         height={product.images.nodes[currentImage].height}
+  //       />
+  //       <div className="flex flex-col absolute top-0 left-0 gap-2">
+  //         {product.images.nodes.map((image, index) => (
+  //           <div
+  //             key={image.id}
+  //             className={`w-[80px] cursor-pointer ${
+  //               currentImage === index ? 'border-2 border-primary' : ''
+  //             }`}
+  //             onClick={() => setCurrentImage(index)}
+  //           >
+  //             <Image
+  //               src={image.url}
+  //               alt={image.altText || 'Product Image'}
+  //               width={image.width}
+  //               height={image.height}
+  //             />
+  //           </div>
+  //         ))}
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
+
+  return (
+    <div className="relative w-full">
+      {/* Main image container with aspect ratio */}
+      <div className="relative aspect-square w-full">
+        <img
+          src={product.images.nodes[currentImage].url}
+          alt={product.images.nodes[currentImage].altText || 'Product Image'}
+          width={product.images.nodes[currentImage].width}
+          height={product.images.nodes[currentImage].height}
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Responsive thumbnail stack */}
+      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 flex flex-col gap-1 sm:gap-2">
+        {product.images.nodes.map((image, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentImage(index)}
+            className={`
+              w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20
+              rounded-sm overflow-hidden border-2 transition-all
+              backdrop-blur-sm bg-white/30
+              ${
+                currentImage === index
+                  ? 'border-primary shadow-lg'
+                  : 'border-gray-200 hover:border-gray-300'
+              }
+            `}
+          >
+            <img
+              src={image.url}
+              alt={image.altText || 'Product Image'}
+              width={image.width}
+              height={image.height}
+              className="w-full h-full object-cover"
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default function Product() {
   const {product, variants} = useLoaderData<typeof loader>();
   const selectedVariant = useOptimisticVariant(
@@ -133,16 +211,23 @@ export default function Product() {
     variants,
   );
 
+  console.log({
+    product,
+    variants,
+  });
+
   const {title, descriptionHtml} = product;
 
   return (
-    <div className="product">
-      <ProductImage image={selectedVariant?.image} />
-      <div className="product-main">
-        <h1>{title}</h1>
+    <div className="flex flex-col-reverse md:flex-row md:w-full md:gap-4 p-4">
+      <div className="flex flex-col pt-4 w-full">
+        <h1 className="text-2xl text-base-content font-montserrat font-bold">
+          {title}
+        </h1>
         <ProductPrice
           price={selectedVariant?.price}
           compareAtPrice={selectedVariant?.compareAtPrice}
+          className="text-md text-base-content font-semibold font-noto-serif"
         />
         <br />
         <Suspense
@@ -168,14 +253,13 @@ export default function Product() {
           </Await>
         </Suspense>
         <br />
-        <br />
-        <p>
-          <strong>Description</strong>
-        </p>
-        <br />
-        <div dangerouslySetInnerHTML={{__html: descriptionHtml}} />
+        <div
+          className="text-base-content font-noto-serif font-light"
+          dangerouslySetInnerHTML={{__html: descriptionHtml}}
+        />
         <br />
       </div>
+      <ProductCarousel product={product} />
       <Analytics.ProductView
         data={{
           products: [
@@ -240,6 +324,15 @@ const PRODUCT_FRAGMENT = `#graphql
     handle
     descriptionHtml
     description
+    images(first: 10) {
+      nodes {
+        id
+        url
+        altText
+        width
+        height
+      }
+    }
     options {
       name
       optionValues {

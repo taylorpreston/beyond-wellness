@@ -42,8 +42,11 @@ function FooterMenu({
   publicStoreDomain: string;
 }) {
   return (
-    <nav className="footer-menu" role="navigation">
-      {(menu || FALLBACK_FOOTER_MENU).items.map((item) => {
+    <nav
+      className="grid grid-cols-1 gap-4 bg-base-content w-full p-6 text-base-100 font-montserrat"
+      role="navigation"
+    >
+      {FALLBACK_FOOTER_MENU.items.map((item) => {
         if (!item.url) return null;
         // if the url is internal, we strip the domain
         const url =
