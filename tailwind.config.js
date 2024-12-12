@@ -16,8 +16,8 @@ module.exports = {
         cutive: ['"Cutive"', 'serif'],
       },
       animation: {
-        marquee: 'marquee 15s linear infinite',
-        marquee2: 'marquee2 15s linear infinite',
+        marquee: 'marquee 25s linear infinite',
+        marquee2: 'marquee2 25s linear infinite',
       },
     },
   },

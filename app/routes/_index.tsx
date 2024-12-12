@@ -16,7 +16,7 @@ import type {
 import logoImage from '~/assets/logo-color.png';
 
 export const meta: MetaFunction = () => {
-  return [{title: 'Hydrogen | Home'}];
+  return [{title: 'Beyond Wellness | Be Well'}];
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -67,7 +67,7 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
 
 export default function Homepage() {
   const data = useLoaderData<typeof loader>();
-  const heroHeightClasses = 'h-[350px] md:h-[725px]';
+  const heroHeightClasses = 'h-[350px] sm:h-[500px] md:h-[600px] 2xl:h-[700px]';
   return (
     <div className="overflow-hidden">
       <div className={`${heroHeightClasses} flex flex-col`}>
@@ -120,18 +120,25 @@ function Marquee() {
     'Vegan Friendly',
     'Gluten Free',
   ];
+  const duplicateItems = [...marqueeItems, ...marqueeItems, ...marqueeItems];
   return (
     <div className="relative flex overflow-x-hidden bg-base-100 py-2">
       <div className="animate-marquee whitespace-nowrap flex items-center">
-        {marqueeItems.map((item, index) => (
-          <span key={index} className="mx-4 text-sm font-montserrat font-light">
+        {duplicateItems.map((item, index) => (
+          <span
+            key={index}
+            className="mx-4 text-sm md:text-2xl font-montserrat font-light"
+          >
             {item}
           </span>
         ))}
       </div>
       <div className="absolute top-0 bottom-0 animate-marquee2 whitespace-nowrap flex items-center">
-        {marqueeItems.map((item, index) => (
-          <span key={index} className="mx-4 text-sm font-montserrat font-light">
+        {duplicateItems.map((item, index) => (
+          <span
+            key={index}
+            className="mx-4 text-sm md:text-2xl font-montserrat font-light"
+          >
             {item}
           </span>
         ))}
@@ -178,11 +185,13 @@ function ProductCard({
   return (
     <Link
       key={product.id}
-      className={`flex flex-col bg-base-100 border-primary-content border-t ${className}`}
+      className={`flex flex-col bg-base-100 border-primary-content border-t !no-underline ${className}`}
       to={`/products/${product.handle}`}
     >
       <div className="flex flex-col items-start justify-center p-2">
-        <h4 className="text-sm font-montserrat font-light">{product.title}</h4>
+        <h4 className="text-sm md:text-xl md:font-normal font-montserrat font-light">
+          {product.title}
+        </h4>
       </div>
       <Image
         data={product.images.nodes[0]}
@@ -193,11 +202,11 @@ function ProductCard({
       <div className="flex flex-row items-center justify-between p-2">
         <small>
           <Money
-            className="text-sm font-montserrat font-light"
+            className="text-sm md:text-xl md:font-normal font-montserrat font-light"
             data={product.priceRange.minVariantPrice}
           />
         </small>
-        <button className="link font-montserrat font-bold text-xs">
+        <button className="font-montserrat font-bold text-xs md:text-xl btn btn-primary-content btn-ghost rounded-none">
           Add to Cart
         </button>
       </div>
@@ -235,7 +244,9 @@ function RecommendedProducts({
 }) {
   return (
     <div className="bg-base-100 border-t border-primary-content">
-      <h2 className="text-lg font-montserrat font-bold p-2">Our Products</h2>
+      <h2 className="text-l md:text-4xl font-montserrat font-bold p-2">
+        Our Products
+      </h2>
       <Suspense fallback={<div>Loading...</div>}>
         <Await resolve={products}>
           {(response) => (
