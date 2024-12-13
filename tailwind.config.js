@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 import daisyui from 'daisyui';
 import typography from '@tailwindcss/typography';
+import phosphorIcons from 'phosphor-icons-tailwindcss';
 
 module.exports = {
   content: ['./app/**/*.{js,jsx,ts,tsx}', './public/**/*.{js,jsx,ts,tsx}'],
@@ -39,5 +40,5 @@ module.exports = {
       },
     ],
   },
-  plugins: [daisyui],
+  plugins: [daisyui, phosphorIcons()],
 };

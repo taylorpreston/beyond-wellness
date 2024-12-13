@@ -185,11 +185,11 @@ function ProductCard({
   return (
     <Link
       key={product.id}
-      className={`flex flex-col bg-base-100 border-primary-content border-t !no-underline ${className}`}
+      className={`flex flex-col bg-base-100 border-primary-content border-b !no-underline ${className}`}
       to={`/products/${product.handle}`}
     >
       <div className="flex flex-col items-start justify-center p-2">
-        <h4 className="text-sm md:text-xl md:font-normal font-montserrat font-light">
+        <h4 className="text-sm md:text-lg md:font-normal font-montserrat font-light">
           {product.title}
         </h4>
       </div>
@@ -199,14 +199,12 @@ function ProductCard({
         sizes="(min-width: 45em) 20vw, 50vw"
         className="w-full h-full object-cover !rounded-none"
       />
-      <div className="flex flex-row items-center justify-between p-2">
-        <small>
-          <Money
-            className="text-sm md:text-xl md:font-normal font-montserrat font-light"
-            data={product.priceRange.minVariantPrice}
-          />
-        </small>
-        <button className="font-montserrat font-bold text-xs md:text-xl btn btn-primary-content btn-ghost rounded-none">
+      <div className="flex flex-row justify-between items-center p-2 border-t border-base-900">
+        <Money
+          className="text-sm md:text-md md:font-normal font-montserrat font-light"
+          data={product.priceRange.minVariantPrice}
+        />
+        <button className="font-montserrat font-semibold text-xs btn btn-ghost btn-primary-content btn-sm rounded-none">
           Add to Cart
         </button>
       </div>
@@ -216,7 +214,7 @@ function ProductCard({
 
 function ProductGrid({products}: {products: RecommendedProductFragment[]}) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-primary-content text-primary-content bg-[#f7f8f8] border-b">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-primary-content text-primary-content border-t">
       {products.map((product, index) => {
         const count = index + 1;
         // Apply border-r to all items except last in row (every 2nd on mobile, every 4th on desktop)
@@ -244,7 +242,7 @@ function RecommendedProducts({
 }) {
   return (
     <div className="bg-base-100 border-t border-primary-content">
-      <h2 className="text-l md:text-4xl font-montserrat font-bold p-2">
+      <h2 className="text-xl md:text-4xl font-montserrat font-bold p-2">
         Our Products
       </h2>
       <Suspense fallback={<div>Loading...</div>}>
@@ -304,7 +302,7 @@ const RECOMMENDED_PRODUCTS_QUERY = `#graphql
   }
   query RecommendedProducts ($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
-    products(first: 4, sortKey: UPDATED_AT, reverse: true) {
+    products(first: 10, sortKey: UPDATED_AT, reverse: true) {
       nodes {
         ...RecommendedProduct
       }
